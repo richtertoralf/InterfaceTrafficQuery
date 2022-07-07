@@ -1,6 +1,8 @@
 # InterfaceTrafficQuery
 Linux Bash script to query interface traffic directly from /proc/net/dev
 
+(Screenshot) [https://github.com/richtertoralf/InterfaceTrafficQuery/blob/4594f2cf42f402e449ada16f65874303bd5ddfa8/Screenshot_linkRxTx.png]
+
 *tested with Linux Ubuntu 20.04*  
 With this script you can display the traffic on the interfaces of your computer. For example on eth0, wlan0, enp0s3 and so on.
 You should know the interface names of your computer or just show them with `ip link show`.
