@@ -7,4 +7,5 @@ You should know the interface names of your computer or just show them with "ip 
 The script fetches the transferred bytes in intervals of e.g. five seconds directly from /proc/net/dev of the corresponding interface with the following commands:  
 - cat /proc/net/dev | grep $ifname | sed 's/:/ /g' | awk '{print $2}'  
 - cat /proc/net/dev | grep $ifname | sed 's/:/ /g' | awk '{print $10}'  
+
 Have a look at the source code before you start the script!
