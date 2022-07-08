@@ -22,3 +22,7 @@ This computer has the following interfaces:
 enp0s3
 lo
 ```
+## Download with:  
+`git clone https://github.com/richtertoralf/InterfaceTrafficQuery` 
+## Start with:
+`bash linkRxTx.sh eth0`  
