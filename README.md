@@ -13,3 +13,12 @@ The script fetches the transferred bytes in intervals of e.g. five seconds direc
 Have a look at the source code before you start the script!  
 When calling the script you have to transfer the interface name.  
 Example: bash ethRxTx.sh eth0
+
+Example of script call:
+```
+$ bash linkRxTx.sh eth0
+There is no interface with the name eth0.
+This computer has the following interfaces:
+enp0s3
+lo
+```
