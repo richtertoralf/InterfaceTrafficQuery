@@ -25,4 +25,5 @@ lo
 ## Download with:  
 `git clone https://github.com/richtertoralf/InterfaceTrafficQuery` 
 ## Start with:
+`cd InterfaceTrafficQuery`  
 `bash linkRxTx.sh eth0`  
