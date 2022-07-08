@@ -9,6 +9,15 @@ ifname=$1
 # Here you can change the query interval:
 interval=5
 
+test_ifname() {
+    for ifname in $(ls /sys/class/net); do
+        if [[ "$ifname" == "$1" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 roundValue() {
     value=$1
     echo $(LC_ALL=C /usr/bin/printf "%.*f\n" "3" "$value")
@@ -67,5 +76,16 @@ main() {
     done
 }
 
+# First I test if the specified interface exists, if the test was successful
 # I start the main program and put in the variables ifname and interval.
-main $ifname $interval
+test_ifname $ifname && main $ifname $interval
+
+# If the specified interface does not exist, it continues here and the script exits.
+RED='\033[0;31m'
+NC='\033[0m'
+YEL='\033[0;33m'
+echo -e "There is no interface with the name ${RED}$1${NC}."
+echo "This computer has the following interfaces:"
+for ifname in $(ls /sys/class/net); do
+    echo -e ${YEL}$ifname${NC}
+done
