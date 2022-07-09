@@ -28,4 +28,4 @@ lo
 `git clone https://github.com/richtertoralf/InterfaceTrafficQuery` 
 ## Start with:
 `cd InterfaceTrafficQuery`  
-`bash linkRxTxV1.sh eth0` or `bash linkRxTxV1.sh eth0`  
+`bash linkRxTxV1.sh eth0` or `bash linkRxTxV2.sh eth0`  
