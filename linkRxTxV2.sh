@@ -104,7 +104,7 @@ main() {
 
         # delete the oldest value in the array
         # if the values of the last 60 seconds are stored
-        if [ ${#rx_[@]} -ge 13 ]; then
+        if [ ${#rx_[@]} -ge $((intervalFactor + 1)) ]; then
 
             rx_=("${rx_[@]:1}")
             tx_=("${tx_[@]:1}")
