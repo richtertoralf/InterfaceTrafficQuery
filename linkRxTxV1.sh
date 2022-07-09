@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # When calling the script you have to transfer the interface name.
-# Example: bash linkRxTx.sh eth0
+# Example: bash linkRxTxV1.sh eth0
 
 # Variable is given when the script is called.
 ifname=$1
