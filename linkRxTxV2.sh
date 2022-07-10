@@ -54,7 +54,8 @@ main() {
     periods=$3
 
     clear
-    echo "I start the query. In $interval seconds you will get the first values."
+    echo "I start the query. In $(($interval * ${periods[0]})) seconds you will get the first values."
+    sleep 1
 
     while true; do
         # Read values and store them in array
