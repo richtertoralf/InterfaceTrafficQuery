@@ -11,11 +11,27 @@ interval=5
 periods=('1' '3' '6' '12')
 
 test_ifname() {
+    RED='\033[0;31m'
+    NC='\033[0m'
+    YEL='\033[0;33m'
+    if [ ! -n "$1" ]; then
+        # If no arguments are given, the following information is output and the script is terminated.
+        echo -e "${RED}Arguments are missing.${NC}"
+        echo -e "Usage: $(basename $0) interface (etc. ${YEL} $(basename $0) eth0${NC})"
+        return 1
+    fi
     for ifname in $(ls /sys/class/net); do
         if [[ "$ifname" == "$1" ]]; then
             return 0
         fi
     done
+    # If the specified interface does not exist, it continues here and the script is then terminated.
+    echo -e "There is no interface with the name ${RED}$1${NC}."
+    echo "This computer has the following interfaces:"
+    for ifname in $(ls /sys/class/net); do
+        echo -e ${YEL}$ifname${NC}
+    done
+
     return 1
 }
 
@@ -117,13 +133,3 @@ main() {
 # I start the main program and put in the variables ifname and interval.
 
 test_ifname $ifname && main $ifname $interval $periods
-
-# If the specified interface does not exist, it continues here and the script exits.
-RED='\033[0;31m'
-NC='\033[0m'
-YEL='\033[0;33m'
-echo -e "There is no interface with the name ${RED}$1${NC}."
-echo "This computer has the following interfaces:"
-for ifname in $(ls /sys/class/net); do
-    echo -e ${YEL}$ifname${NC}
-done
