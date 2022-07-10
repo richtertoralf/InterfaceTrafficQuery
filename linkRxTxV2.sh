@@ -10,10 +10,10 @@ ifname=$1
 interval=5
 periods=('1' '3' '6' '12')
 
-test_ifname() {
+test_args() {
     RED='\033[0;31m'
-    NC='\033[0m'
     YEL='\033[0;33m'
+    NC='\033[0m'
     if [ ! -n "$1" ]; then
         # If no arguments are given, the following information is output and the script is terminated.
         echo -e "${RED}Arguments are missing.${NC}"
@@ -31,7 +31,6 @@ test_ifname() {
     for ifname in $(ls /sys/class/net); do
         echo -e ${YEL}$ifname${NC}
     done
-
     return 1
 }
 
@@ -132,4 +131,4 @@ main() {
 # First I test if the specified interface exists, if the test was successful
 # I start the main program and put in the variables ifname and interval.
 
-test_ifname $ifname && main $ifname $interval $periods
+test_args $ifname && main $ifname $interval $periods
