@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# When calling the script you have to transfer the interface name.
+# When calling the script you have to pass the interface name
+# and optionally the name of the file for output as csv file.
 # Example: bash linkRxTxV2.sh eth0
+# or: bash linkRxTxV2.sh eth0 link.csv
 
 # Variable is given when the script is called.
 ifname=$1
@@ -9,6 +11,9 @@ ifname=$1
 # Here you can change the query interval:
 interval=5
 periods=('1' '3' '6' '12')
+# Specify the name of the output csv file here:
+# csvFileName="csv.out" or so
+csvFileName=$2
 
 test_args() {
     RED='\033[0;31m'
@@ -63,11 +68,23 @@ printFormatUnit() {
     echo $value
 }
 
+makeCSVfile() {
+    # "$(date +%s%N),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
+    echo "timestamp,iface,interval,RX,TX" >$1
+}
+
 main() {
     ifname=$1
     interval=$2
     periods=$3
+    csvFileName=$4
 
+    # Create a new file for the csv formatted results.
+    if [ ! -z "$4" ]; then
+        makeCSVfile $csvFileName
+    fi
+
+    # Prepare output in terminal
     clear
     echo "I start the query. In $(($interval * ${periods[0]})) seconds you will get the first values."
     sleep 1
@@ -76,10 +93,6 @@ main() {
         # Read values and store them in array
         rx_+=($(rxQuery $ifname))
         tx_+=($(txQuery $ifname))
-
-        # Show me all values in the Arreys
-        # echo "${rx_[@]}"
-        # echo "${tx_[@]}"
 
         # Wait defined interval (5 seconds)
         sleep $interval
@@ -97,7 +110,6 @@ main() {
 
         # Calculate the average values for the periods
 
-        # last and second to last value, results in an interval of 5 seconds, the average traffic of the last 5 seconds
         # Number of values in array: {#rx_[@]}
         # the last value in the array: {rx_[-1]}
 
@@ -107,10 +119,17 @@ main() {
                 rx=$(((${rx_[-1]} - ${rx_[$((${#rx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
                 tx=$(((${tx_[-1]} - ${tx_[$((${#tx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
 
+                # prints to csv file
+                if [ ! -z "$4" ]; then
+                    echo "$(date +%s),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
+                fi
+
+                # prints formatted to terminal / stdout
                 rx=$(printFormatUnit $rx)
                 tx=$(printFormatUnit $tx)
 
                 printf "%7s %14s %14s \n" "$(($interval * $intervalFactor)) s" "$rx" "$tx"
+
             fi
         done
 
@@ -119,7 +138,7 @@ main() {
         unset 'tx_[-1]'
 
         # delete the oldest value in the array
-        # if the values of the last 60 seconds are stored
+        # when all values of the longest period have been saved
         if [ ${#rx_[@]} -ge $((intervalFactor + 1)) ]; then
 
             rx_=("${rx_[@]:1}")
@@ -131,4 +150,4 @@ main() {
 # First I test if the specified interface exists, if the test was successful
 # I start the main program and put in the variables ifname and interval.
 
-test_args $ifname && main $ifname $interval $periods
+test_args $ifname && main $ifname $interval $periods $csvFileName
