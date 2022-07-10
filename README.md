@@ -14,9 +14,12 @@ The script fetches the transferred bytes in intervals of e.g. five seconds direc
 
 Have a look at the source code before you start the script!  
 When calling the script you have to transfer the interface name.  
-Example: bash ethRxTx.sh eth0
+Example: `bash ethRxTxV1.sh eth0`
+### Version 2
+More extensive version with output of average values over several time periods and optional output as csv file.
+Example of program call: `bash ethRxTxV2.sh eth0 outputfile.csv`
 
-Example of script call:
+Example of a script call:
 ```
 $ bash linkRxTx.sh eth0
 There is no interface with the name eth0.
