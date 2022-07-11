@@ -2,8 +2,8 @@
 
 # When calling the script you have to pass the interface name
 # and optionally the name of the file for output as csv file.
-# Example: bash linkRxTxV2.sh eth0
-# or: bash linkRxTxV2.sh eth0 link.csv
+# Example: bash iftraffic.sh eth0
+# or: bash iftraffic.sh eth0 link.csv
 
 # Variable is given when the script is called.
 ifname=$1
