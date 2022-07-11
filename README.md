@@ -30,7 +30,7 @@ lo
 `cd InterfaceTrafficQuery`  
 `bash iftraffic.sh eth0` or `bash iftraffic.sh eth0 out.csv`  
 ## next steps
-The following will be implented shortly:
+The following will be implemented shortly:
 - I will use "getopts" to read in arguments, e.g. "-h", "-i ifname", "-n interval to wait between querys", "-p 1 2 6 12 periods * interval" "-csv output to file".  
 - When calling the script, passing the settings for the frequency of the query and the periods for the calculation of the average traffic.
 
