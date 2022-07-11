@@ -13,7 +13,7 @@ The script fetches the transferred bytes in intervals of e.g. five seconds direc
 
 Have a look at the source code before you start the script!  
 When calling the script you have to transfer the interface name.  
-Example 1: `bash iftraffic.sh eth0`
+Example 1: `bash iftraffic.sh eth0`  
 Example 2: `bash iftraffic.sh wlan0 myoutputfile.csv`
 
 Example of output when calling the script specifying a non-existent interface:
