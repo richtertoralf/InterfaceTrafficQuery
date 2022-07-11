@@ -10,7 +10,7 @@ ifname=$1
 
 # Here you can change the query interval:
 interval=5
-periods=('1' '3' '6' '12')
+periods=(1 2 6 12)
 # Specify the name of the output csv file here:
 # csvFileName="csv.out" or so
 csvFileName=$2
@@ -22,7 +22,7 @@ test_args() {
     if [ ! -n "$1" ]; then
         # If no arguments are given, the following information is output and the script is terminated.
         echo -e "${RED}Arguments are missing.${NC}"
-        echo -e "Usage: $(basename $0) interface (etc. ${YEL} $(basename $0) eth0${NC})"
+        printUsage
         return 1
     fi
     for ifname in $(ls /sys/class/net); do
@@ -36,6 +36,7 @@ test_args() {
     for ifname in $(ls /sys/class/net); do
         echo -e ${YEL}$ifname${NC}
     done
+    printUsage
     return 1
 }
 
@@ -71,6 +72,12 @@ printFormatUnit() {
 makeCSVfile() {
     # "$(date +%s%N),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
     echo "timestamp,iface,interval,RX,TX" >$1
+}
+
+printUsage() {
+    echo "${0##*/} - displays the amount of received and transmitted data for the selected network interface"
+    printf " Usage:   %15s interface [csv-file_name] \n" $(basename $0)
+    printf " example: %15s eth0 \n" $(basename $0)
 }
 
 main() {
@@ -118,18 +125,14 @@ main() {
             if [ ${#rx_[@]} -ge $((intervalFactor + 1)) ]; then
                 rx=$(((${rx_[-1]} - ${rx_[$((${#rx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
                 tx=$(((${tx_[-1]} - ${tx_[$((${#tx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
-
                 # prints to csv file
                 if [ ! -z "$4" ]; then
                     echo "$(date +%s),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
                 fi
-
                 # prints formatted to terminal / stdout
                 rx=$(printFormatUnit $rx)
                 tx=$(printFormatUnit $tx)
-
                 printf "%7s %14s %14s \n" "$(($interval * $intervalFactor)) s" "$rx" "$tx"
-
             fi
         done
 
@@ -140,7 +143,6 @@ main() {
         # delete the oldest value in the array
         # when all values of the longest period have been saved
         if [ ${#rx_[@]} -ge $((intervalFactor + 1)) ]; then
-
             rx_=("${rx_[@]:1}")
             tx_=("${tx_[@]:1}")
         fi
