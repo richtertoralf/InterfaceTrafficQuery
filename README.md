@@ -39,7 +39,7 @@ Currently you still have to make the settings for the as query interval and the 
 interval=5
 periods=(1 2 3 6 12 120)
 ```
-Currently you still have to make the settings for the as query interval and the periods in the source code. 
+With the above in the source code, you get the following output:
 ```
 $ bash iftraffic.sh enp0s3
 time: 12:46:11  --> ip link: enp0s3
