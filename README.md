@@ -38,15 +38,3 @@ lo
 ## Start with:
 `cd InterfaceTrafficQuery`  
 `bash iftraffic.sh -i eth0` or `bash iftraffic.sh -i eth0 --csv out.csv`  
-
-With the above in the source code, you get the following output:
-```
-$ bash iftraffic.sh -i enp0s3
-time: 12:46:11  --> ip link: enp0s3
-average             rx             tx 
-    5 s        208 B/s        242 B/s 
-   10 s        221 B/s        326 B/s 
-   15 s        217 B/s        340 B/s 
-   30 s        221 B/s        368 B/s 
-   60 s        226 B/s        389 B/s 
-```
