@@ -9,6 +9,10 @@ periods="1 3 6 12"
 # echo "args:" $@
 # echo "\$1:" $1
 
+RED='\033[0;31m'
+YEL='\033[0;33m'
+NC='\033[0m'
+
 usage() {
     echo "Usage: $0 
             [ -h | --help ] -> show this help message and exit
@@ -22,8 +26,23 @@ usage() {
     exit 1
 }
 
+test_ifname() {
+    for ifname in $(ls /sys/class/net); do
+        if [[ "$ifname" == "$1" ]]; then
+            return 0
+        fi
+    done
+    # If the specified interface does not exist, it continues here and the script is then terminated.
+    echo -e "There is no interface with the name ${RED}$1${NC}."
+    echo "This computer has the following interfaces:"
+    for ifname in $(ls /sys/class/net); do
+        echo -e ${YEL}$ifname${NC}
+    done
+    usage
+}
+
 if [ $# = 0 ] || [[ ! $@ = *"-"* ]] || [[ $@ == "-" ]]; then
-    echo "No arguments specified!"
+    echo -e "${RED}Arguments are missing.${NC}"
     usage
 fi
 
@@ -34,17 +53,10 @@ LONG='help,quiet,ifname:,interval:,periods:,csv:'
 # # read the options
 OPTS=$(getopt -a -o $SHORT --long $LONG -n $0 -- "$@")
 
-# if [ $? -ne 0 ]; then
-#     echo 'Incorrect options provided. Terminating...'
-#     usage
-# fi
-
 if [ $? != 0 ]; then
     echo "Terminating..." >&2
     usage
 fi
-
-# Note the quotes around "$OPTS": they are essential!
 
 eval set -- "$OPTS"
 # unset OPTS
@@ -64,6 +76,7 @@ while true; do
     '-i' | '--ifname')
         echo 'Option -i or --ifname'
         if_name="$2"
+        test_ifname $if_name
         shift 2
         continue
         ;;
