@@ -1,30 +1,33 @@
 #!/bin/bash
+# Set some default values:
+quiet=false
+if_name=unset
+csv_file=unset
+query_interval=5
+periods=(1 3 6 12)
 
-# When calling the script you have to pass the interface name
-# and optionally the name of the file for output as csv file.
-# Example: bash iftraffic.sh eth0
-# or: bash iftraffic.sh eth0 link.csv
+# echo "args:" $@
+# echo "\$1:" $1
 
-# Variable is given when the script is called.
-ifname=$1
+RED='\033[0;31m'
+YEL='\033[0;33m'
+NC='\033[0m'
 
-# Here you can change the query interval:
-interval=5
-periods=(1 2 6 12)
-# Specify the name of the output csv file here:
-# csvFileName="csv.out" or so
-csvFileName=$2
+usage() {
+    echo "Usage: $0 
+            [ -h | --help ] -> show this help message and exit
+            [ -q | --quiet] -> no output of information in terminal
+            [ -i | --ifname name] -> Specification of the interface name.
+            [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
+            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is "1 3 6 12".
+            [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
+    echo "example 1: $0 -i eth0"
+    echo "example 2: $0 -i wlan0 -csv mytraffic.csv"
+    echo "example 3: $0 -i enp0s3 -n 1 -p "1 30" --csv mytraffic.csv"
+    exit 1
+}
 
-test_args() {
-    RED='\033[0;31m'
-    YEL='\033[0;33m'
-    NC='\033[0m'
-    if [ ! -n "$1" ]; then
-        # If no arguments are given, the following information is output and the script is terminated.
-        echo -e "${RED}Arguments are missing.${NC}"
-        printUsage
-        return 1
-    fi
+test_ifname() {
     for ifname in $(ls /sys/class/net); do
         if [[ "$ifname" == "$1" ]]; then
             return 0
@@ -36,8 +39,7 @@ test_args() {
     for ifname in $(ls /sys/class/net); do
         echo -e ${YEL}$ifname${NC}
     done
-    printUsage
-    return 1
+    usage
 }
 
 roundValue() {
@@ -74,17 +76,12 @@ makeCSVfile() {
     echo "timestamp,iface,interval,RX,TX" >$1
 }
 
-printUsage() {
-    echo "${0##*/} - displays the amount of received and transmitted data for the selected network interface"
-    printf " Usage:   %15s interface [csv-file_name] \n" $(basename $0)
-    printf " example: %15s eth0 \n" $(basename $0)
-}
-
 main() {
     ifname=$1
     interval=$2
     periods=$3
     csvFileName=$4
+    quiet=$5
 
     # Create a new file for the csv formatted results.
     if [ ! -z "$4" ]; then
@@ -92,10 +89,11 @@ main() {
     fi
 
     # Prepare output in terminal
-    clear
-    echo "I start the query. In $(($interval * ${periods[0]})) seconds you will get the first values."
-    sleep 1
-
+    if ! [ "$quiet" = true ]; then
+        clear
+        echo "I start the query. In $(($interval * ${periods[0]})) seconds you will get the first values."
+        sleep 1
+    fi
     while true; do
         # Read values and store them in array
         rx_+=($(rxQuery $ifname))
@@ -108,13 +106,14 @@ main() {
         rx_+=($(rxQuery $ifname))
         tx_+=($(txQuery $ifname))
 
-        # Output to terminal (stdout)
-        # Clean terminal and print headers
-        clear
-        echo "time: $(date +%k:%M:%S)  --> ip link: $ifname"
-        # echo "Query interval $interval seconds"
-        printf "%7s %14s %14s \n" "average" "rx" "tx"
-
+        if ! [ "$quiet" = true ]; then
+            # Output to terminal (stdout)
+            # Clean terminal and print headers
+            clear
+            echo "time: $(date +%k:%M:%S)  --> ip link: $ifname"
+            # echo "Query interval $interval seconds"
+            printf "%7s %14s %14s \n" "average" "rx" "tx"
+        fi
         # Calculate the average values for the periods
 
         # Number of values in array: {#rx_[@]}
@@ -126,13 +125,15 @@ main() {
                 rx=$(((${rx_[-1]} - ${rx_[$((${#rx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
                 tx=$(((${tx_[-1]} - ${tx_[$((${#tx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
                 # prints to csv file
-                if [ ! -z "$4" ]; then
+                if [ ! -z "$csvFileName" ]; then
                     echo "$(date +%s),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
                 fi
-                # prints formatted to terminal / stdout
-                rx=$(printFormatUnit $rx)
-                tx=$(printFormatUnit $tx)
-                printf "%7s %14s %14s \n" "$(($interval * $intervalFactor)) s" "$rx" "$tx"
+                if ! [ "$quiet" = true ]; then
+                    # prints formatted to terminal / stdout
+                    rx=$(printFormatUnit $rx)
+                    tx=$(printFormatUnit $tx)
+                    printf "%7s %14s %14s \n" "$(($interval * $intervalFactor)) s" "$rx" "$tx"
+                fi
             fi
         done
 
@@ -149,7 +150,85 @@ main() {
     done
 }
 
-# First I test if the specified interface exists, if the test was successful
-# I start the main program and put in the variables ifname and interval.
+if [ $# = 0 ] || [[ ! $@ = *"-"* ]] || [[ $@ == "-" ]]; then
+    echo -e "${RED}Arguments are missing.${NC}"
+    usage
+fi
 
-test_args $ifname && main $ifname $interval $periods $csvFileName
+# Option strings
+SHORT='hqi:n:p:c:'
+LONG='help,quiet,ifname:,interval:,periods:,csv:'
+
+# read the options
+OPTS=$(getopt -a -o $SHORT --long $LONG -n $0 -- "$@")
+
+if [ $? != 0 ]; then
+    echo "Terminating..." >&2
+    usage
+fi
+
+eval set -- "$OPTS"
+# unset OPTS
+
+while true; do
+    case "$1" in
+    '-h' | '--help')
+        echo 'Option -h or --help'
+        usage
+        ;;
+    '-q' | '--quiet')
+        echo 'Option -q or --quiet'
+        quiet=true
+        shift
+        continue
+        ;;
+    '-i' | '--ifname')
+        echo 'Option -i or --ifname'
+        if_name="$2"
+        test_ifname $if_name
+        shift 2
+        continue
+        ;;
+    '-n' | '--interval')
+        echo 'Option -n or --interval'
+        query_interval=$2
+        shift 2
+        continue
+        ;;
+    '-p' | '--periods')
+        echo 'Option -p or --periods'
+        echo "old periods: ${periods[@]}"
+        echo "size of old periods: ${#periods[@]}"
+        # unset periods
+        periods=($2)
+        echo "new periods: ${periods[@]}"
+        shift 2
+        continue
+        ;;
+    '-c' | '--csv')
+        echo "Option -c or --csv, argument '$2'"
+        csv_file="$2"
+        shift 2
+        continue
+        ;;
+    '--')
+        # -- means the end of the arguments; drop this, and break out of the while loop
+        shift
+        break
+        ;;
+    *)
+        echo " * Unexpected option: $1 , this should not happen."
+        usage
+        ;;
+    esac
+done
+
+# echo "### Test: ###"
+# echo "if_name : $if_name "
+# echo "Query interval: $query_interval"
+# echo "Periods as factor: ${periods[@]}"
+# echo "csv_file: $csv_file"
+# echo "quiet Mode: $quiet"
+# read
+
+main $if_name $query_interval $periods $csv_file $quiet
