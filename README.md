@@ -30,10 +30,15 @@ lo
 `cd InterfaceTrafficQuery`  
 `bash iftraffic.sh eth0` or `bash iftraffic.sh eth0 out.csv`  
 ## next steps
-The following will be implemented shortly:
-- I will use "getopts" to read in arguments, e.g. "-h", "-i ifname", "-n interval to wait between querys", "-p 1 2 6 12 periods * interval" "-csv output to file".  
-- When calling the script, passing the settings for the frequency of the query and the periods for the calculation of the average traffic.
-
+The following will be implemented shortly, as script with `getopt`:
+```
+            [ -h | --help ] -> show this help message and exit
+            [ -q | --quiet] -> no output of information in terminal
+            [ -i | --ifname name] -> Specification of the interface name.
+            [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
+            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. 
+            [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
+```
 Currently you still have to make the settings for the as query interval and the periods in the source code. 
 ```
 # Here you can change the query interval:
