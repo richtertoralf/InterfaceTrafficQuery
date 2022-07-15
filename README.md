@@ -49,5 +49,4 @@ average             rx             tx
    15 s        217 B/s        340 B/s 
    30 s        221 B/s        368 B/s 
    60 s        226 B/s        389 B/s 
-  600 s        228 B/s        401 B/s 
 ```
