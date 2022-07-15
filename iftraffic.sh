@@ -19,11 +19,11 @@ usage() {
             [ -q | --quiet] -> no output of information in terminal
             [ -i | --ifname name] -> Specification of the interface name.
             [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
-            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. 
+            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is "1 3 6 12".
             [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
     echo "example 1: $0 -i eth0"
     echo "example 2: $0 -i wlan0 -csv mytraffic.csv"
-    echo "example 3: $0 -i enp0s3 -n 1 -p "5" --csv mytraffic.csv"
+    echo "example 3: $0 -i enp0s3 -n 1 -p "1 5 30" --csv mytraffic.csv"
     exit 1
 }
 
