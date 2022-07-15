@@ -11,14 +11,23 @@ The script fetches the transferred bytes in intervals of e.g. five seconds direc
 - cat /proc/net/dev | grep $ifname | sed 's/:/ /g' | awk '{print $2}'  
 - cat /proc/net/dev | grep $ifname | sed 's/:/ /g' | awk '{print $10}'  
 
-Have a look at the source code before you start the script!  
-When calling the script you have to transfer the interface name.  
-Example 1: `bash iftraffic.sh eth0`  
-Example 2: `bash iftraffic.sh wlan0 myoutputfile.csv`
+```
+~/InterfaceTrafficQuery$ bash iftraffic.sh -h
+Usage: iftraffic.sh 
+            [ -h | --help ] -> show this help message and exit
+            [ -q | --quiet] -> no output of information in terminal
+            [ -i | --ifname name] -> Specification of the interface name.
+            [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
+            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is 1 3 6 12.
+            [ -c | --csv filename] -> Specify the name of the output file for output in csv format.
+example 1: iftraffic.sh -i eth0
+example 2: iftraffic.sh -i wlan0 -csv mytraffic.csv
+example 3: iftraffic.sh -i enp0s3 -n 1 -p 1 5 30 --csv mytraffic.csv
+```
 
 Example of output when calling the script specifying a non-existent interface:
 ```
-$ bash iftraffic.sh eth0
+$ bash iftraffic.sh -i eth0
 There is no interface with the name eth0.
 This computer has the following interfaces:
 enp0s3
@@ -28,26 +37,11 @@ lo
 `git clone https://github.com/richtertoralf/InterfaceTrafficQuery` 
 ## Start with:
 `cd InterfaceTrafficQuery`  
-`bash iftraffic.sh eth0` or `bash iftraffic.sh eth0 out.csv`  
-## next steps
-The following will be implemented shortly, as script with `getopt`:
-```
-            [ -h | --help ] -> show this help message and exit
-            [ -q | --quiet] -> no output of information in terminal
-            [ -i | --ifname name] -> Specification of the interface name.
-            [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
-            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. 
-            [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
-```
-Currently you still have to make the settings for the as query interval and the periods in the source code. 
-```
-# Here you can change the query interval:
-interval=5
-periods=(1 2 3 6 12 120)
-```
+`bash iftraffic.sh -i eth0` or `bash iftraffic.sh -i eth0 --csv out.csv`  
+
 With the above in the source code, you get the following output:
 ```
-$ bash iftraffic.sh enp0s3
+$ bash iftraffic.sh -i enp0s3
 time: 12:46:11  --> ip link: enp0s3
 average             rx             tx 
     5 s        208 B/s        242 B/s 
