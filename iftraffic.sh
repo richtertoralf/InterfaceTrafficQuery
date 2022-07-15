@@ -19,11 +19,11 @@ usage() {
             [ -q | --quiet] -> no output of information in terminal
             [ -i | --ifname name] -> Specification of the interface name.
             [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
-            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is "1 3 6 12".
+            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. 
             [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
     echo "example 1: $0 -i eth0"
     echo "example 2: $0 -i wlan0 -csv mytraffic.csv"
-    echo "example 3: $0 -i enp0s3 -n 1 -p "1 30" --csv mytraffic.csv"
+    echo "example 3: $0 -i enp0s3 -n 1 -p "5" --csv mytraffic.csv"
     exit 1
 }
 
@@ -84,7 +84,7 @@ main() {
     quiet=$5
 
     # Create a new file for the csv formatted results.
-    if [ ! -z "$4" ]; then
+    if ! [ "$csvFileName" = "unset" ]; then
         makeCSVfile $csvFileName
     fi
 
@@ -125,7 +125,7 @@ main() {
                 rx=$(((${rx_[-1]} - ${rx_[$((${#rx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
                 tx=$(((${tx_[-1]} - ${tx_[$((${#tx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
                 # prints to csv file
-                if [ ! -z "$csvFileName" ]; then
+                if ! [ "$csvFileName" = "unset" ]; then
                     echo "$(date +%s),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
                 fi
                 if ! [ "$quiet" = true ]; then
@@ -168,45 +168,40 @@ if [ $? != 0 ]; then
 fi
 
 eval set -- "$OPTS"
-# unset OPTS
 
 while true; do
     case "$1" in
     '-h' | '--help')
-        echo 'Option -h or --help'
+        # echo 'Option -h or --help'
         usage
         ;;
     '-q' | '--quiet')
-        echo 'Option -q or --quiet'
+        # echo 'Option -q or --quiet'
         quiet=true
         shift
         continue
         ;;
     '-i' | '--ifname')
-        echo 'Option -i or --ifname'
+        # echo 'Option -i or --ifname'
         if_name="$2"
-        test_ifname $if_name
         shift 2
         continue
         ;;
     '-n' | '--interval')
-        echo 'Option -n or --interval'
+        # echo 'Option -n or --interval'
         query_interval=$2
         shift 2
         continue
         ;;
     '-p' | '--periods')
-        echo 'Option -p or --periods'
-        echo "old periods: ${periods[@]}"
-        echo "size of old periods: ${#periods[@]}"
-        # unset periods
+        # echo 'Option -p or --periods'
         periods=($2)
-        echo "new periods: ${periods[@]}"
+        # echo "new periods: ${periods[@]}"
         shift 2
         continue
         ;;
     '-c' | '--csv')
-        echo "Option -c or --csv, argument '$2'"
+        # echo "Option -c or --csv, argument '$2'"
         csv_file="$2"
         shift 2
         continue
@@ -231,4 +226,5 @@ done
 # echo "quiet Mode: $quiet"
 # read
 
+test_ifname $if_name
 main $if_name $query_interval $periods $csv_file $quiet
