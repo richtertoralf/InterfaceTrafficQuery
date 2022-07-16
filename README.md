@@ -14,15 +14,17 @@ The script fetches the transferred bytes in intervals of e.g. five seconds direc
 ```
 ~/InterfaceTrafficQuery$ bash iftraffic.sh -h
 Usage: iftraffic.sh 
-            [ -h | --help ] -> show this help message and exit
-            [ -q | --quiet] -> no output of information in terminal
-            [ -i | --ifname name] -> Specification of the interface name.
-            [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
-            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is "1 3 6 12".
-            [ -c | --csv filename] -> Specify the name of the output file for output in csv format.
-example 1: iftraffic.sh -i eth0
-example 2: iftraffic.sh -i wlan0 -csv mytraffic.csv
-example 3: iftraffic.sh -i enp0s3 -n 1 -p "1 5 30" --csv mytraffic.csv
+    [ -h | --help ] -> show this help message and exit
+    [ -q | --quiet] -> no output of information in terminal
+    [ -i | --ifname name] -> Specification of the interface name.
+    [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
+    [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is "1 3 6 12".
+    [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
+examples:
+iftraffic.sh -i eth0
+iftraffic.sh -i wlan0 -csv mytraffic.csv
+iftraffic.sh -i enp0s3 -n 5 -p 2 -csv traffic.csv -q
+iftraffic.sh -i enp0s3 -n 1 -p "1 5 30" --csv mytraffic.csv
 ```
 
 Example of output when calling the script specifying a non-existent interface:
