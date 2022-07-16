@@ -14,16 +14,20 @@ YEL='\033[0;33m'
 NC='\033[0m'
 
 usage() {
-    echo "Usage: $0 
-            [ -h | --help ] -> show this help message and exit
-            [ -q | --quiet] -> no output of information in terminal
-            [ -i | --ifname name] -> Specification of the interface name.
-            [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
-            [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is "1 3 6 12".
-            [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
-    echo "example 1: $0 -i eth0"
-    echo "example 2: $0 -i wlan0 -csv mytraffic.csv"
-    echo "example 3: $0 -i enp0s3 -n 1 -p "1 5 30" --csv mytraffic.csv"
+    cat <<EOF
+Usage: $0 
+    [ -h | --help ] -> show this help message and exit
+    [ -q | --quiet] -> no output of information in terminal
+    [ -i | --ifname name] -> Specification of the interface name.
+    [ -n | --interval sec ] -> Specification of the query interval in seconds. The default value is 5 seconds.
+    [ -p | --periods sec ] -> Specify the periods as a factor to the interval. Default is "1 3 6 12".
+    [ -c | --csv filename] -> Specify the name of the output file for output in csv format."
+examples:
+$0 -i eth0
+$0 -i wlan0 -csv mytraffic.csv
+$0 -i enp0s3 -n 5 -p 2 -csv traffic.csv -q
+$0 -i enp0s3 -n 1 -p "1 5 30" --csv mytraffic.csv
+EOF
     exit 1
 }
 
@@ -119,13 +123,13 @@ main() {
         # Number of values in array: {#rx_[@]}
         # the last value in the array: {rx_[-1]}
 
-        for period in "${periods[@]}"; do # $periods
+        for period in "${periods[@]}"; do
             intervalFactor=$period
             if [ ${#rx_[@]} -ge $((intervalFactor + 1)) ]; then
                 rx=$(((${rx_[-1]} - ${rx_[$((${#rx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
                 tx=$(((${tx_[-1]} - ${tx_[$((${#tx_[@]} - ($intervalFactor + 1)))]}) / ($interval * $intervalFactor)))
-                # prints to csv file
                 if ! [ "$csvFileName" = "unset" ]; then
+                    # prints to csv file
                     echo "$(date +%s),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
                 fi
                 if ! [ "$quiet" = true ]; then
@@ -150,6 +154,7 @@ main() {
     done
 }
 
+# Check arguments
 if [ $# = 0 ] || [[ ! $@ = *"-"* ]] || [[ $@ == "-" ]]; then
     echo -e "${RED}Arguments are missing.${NC}"
     usage
@@ -169,39 +174,33 @@ fi
 
 eval set -- "$OPTS"
 
+# Arguments are mapped to the variables depending on the option
 while true; do
     case "$1" in
     '-h' | '--help')
-        # echo 'Option -h or --help'
         usage
         ;;
     '-q' | '--quiet')
-        # echo 'Option -q or --quiet'
         quiet=true
         shift
         continue
         ;;
     '-i' | '--ifname')
-        # echo 'Option -i or --ifname'
         if_name="$2"
         shift 2
         continue
         ;;
     '-n' | '--interval')
-        # echo 'Option -n or --interval'
         query_interval=$2
         shift 2
         continue
         ;;
     '-p' | '--periods')
-        # echo 'Option -p or --periods'
         periods=($2)
-        # echo "new periods: ${periods[@]}"
         shift 2
         continue
         ;;
     '-c' | '--csv')
-        # echo "Option -c or --csv, argument '$2'"
         csv_file="$2"
         shift 2
         continue
@@ -218,13 +217,26 @@ while true; do
     esac
 done
 
-# echo "### Test: ###"
-# echo "if_name : $if_name "
-# echo "Query interval: $query_interval"
-# echo "Periods as factor: ${periods[@]}"
-# echo "csv_file: $csv_file"
-# echo "quiet Mode: $quiet"
+# cat << EOF
+# ### Test: ###
+# if_name : $if_name
+# Query interval: $query_interval
+# Periods as factor: ${periods[@]}
+# csv_file: $csv_file
+# quiet Mode: $quiet
+# Are the values of the variables correct?
+# Continue with [enter] or terminate script with [ctrl+c].
+# EOF
 # read
 
+# test if the specified interface exists
 test_ifname $if_name
+
+# starts the loop to query the sent and received bytes with the arguments
 main $if_name $query_interval $periods $csv_file $quiet
+
+# In Bash, these variables are available globally within the script. 
+# This is unusual in comparison to other programming languages. 
+# The explicit passing of the variables into the respective functions serves here 
+# only for the improvement of the clarity and/or the comprehensibility. 
+# With "local" the validity of the variables could be limited however to the respective function.
