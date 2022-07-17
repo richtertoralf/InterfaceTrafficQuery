@@ -236,8 +236,8 @@ test_ifname $if_name
 # starts the loop to query the sent and received bytes with the arguments
 main $if_name $query_interval $periods $csv_file $quiet
 
-# In Bash, these variables are available globally within the script. 
-# This is unusual in comparison to other programming languages. 
-# The explicit passing of the variables into the respective functions serves here 
-# only for the improvement of the clarity and/or the comprehensibility. 
+# In Bash, these variables are available globally within the script.
+# This is unusual in comparison to other programming languages.
+# The explicit passing of the variables into the respective functions serves here
+# only for the improvement of the clarity and/or the comprehensibility.
 # With "local" the validity of the variables could be limited however to the respective function.
