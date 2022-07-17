@@ -76,7 +76,7 @@ printFormatUnit() {
 }
 
 makeCSVfile() {
-    # "$(date +%s%N),$ifname,$(($interval * $intervalFactor)),$rx,$tx" >>$csvFileName
+    # creates csv file and prints header
     echo "timestamp,iface,interval,RX,TX" >$1
 }
 
@@ -154,7 +154,7 @@ main() {
     done
 }
 
-# Check arguments
+# Check arguments for simple input errors
 if [ $# = 0 ] || [[ ! $@ = *"-"* ]] || [[ $@ == "-" ]]; then
     echo -e "${RED}Arguments are missing.${NC}"
     usage
@@ -167,6 +167,7 @@ LONG='help,quiet,ifname:,interval:,periods:,csv:'
 # read the options
 OPTS=$(getopt -a -o $SHORT --long $LONG -n $0 -- "$@")
 
+# Termination in case of error messages from getopt
 if [ $? != 0 ]; then
     echo "Terminating..." >&2
     usage
